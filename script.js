@@ -5,16 +5,31 @@ const contador = document.querySelector("#contador");
 const listaTarefas = document.querySelector("#lista-tarefa");
 
 //Resgate de tarefas do localStorage
-let tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
+const tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
 
 //ouvir e agir sobre o clique
 form.addEventListener("submit", adicionarTarefa);
 
 // Função para adicionar tarefa
-function adicionarTarefa() {
-    let texto = inputTarefa.ariaValueMax.trim();
+function adicionarTarefa(event) {
+    event.preventDefault();
+    const texto = inputTarefa.value.trim();
     if (texto === ""){
         alert("Digite uma tarefa!");
         return;
     }
+    const novaTarefa = {
+        id: Date.now(),
+        texto: texto,
+        concluida: false
+    };
+    tarefas.push(novaTarefa);
+    salvarTarefa();
+    inputTarefa.value = "";
+    inputTarefa.focus();
+    console.log(novaTarefa);
+}
+
+function salvarTarefa() {
+    localStorage.setItem("tarefas", JSON.stringify(tarefas));
 }
