@@ -33,3 +33,12 @@ function adicionarTarefa(event) {
 function salvarTarefa() {
     localStorage.setItem("tarefas", JSON.stringify(tarefas));
 }
+function editarTarefa() {
+    const id = this.parentNode.dataset.id;
+    const tarefa = tarefas.find(tarefa => tarefa.id == id);
+    const novoTexto = prompt("Edite a tarefa:", tarefa.texto);
+    if (novoTexto !== null) {
+        tarefa.texto = novoTexto;
+        salvarTarefa();
+    }
+}
