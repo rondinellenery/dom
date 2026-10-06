@@ -1,44 +1,327 @@
-// Métodos DOM
+// ========================================
+// MÉTODOS DOM
+// ========================================
+
 const form = document.querySelector("#form-tarefa");
+
 const inputTarefa = document.querySelector("#tarefa");
+
 const contador = document.querySelector("#contador");
-const listaTarefas = document.querySelector("#lista-tarefa");
 
-//Resgate de tarefas do localStorage
-const tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
+const listaTarefas = document.querySelector("#lista-tarefas");
 
-//ouvir e agir sobre o clique
+
+// ========================================
+// RESGATE DAS TAREFAS DO LOCALSTORAGE
+// ========================================
+
+const tarefas =
+    JSON.parse(localStorage.getItem("tarefas")) || [];
+
+
+// ========================================
+// OUVIR O ENVIO DO FORMULÁRIO
+// ========================================
+
 form.addEventListener("submit", adicionarTarefa);
 
-// Função para adicionar tarefa
+
+// ========================================
+// FUNÇÃO PARA ADICIONAR TAREFA
+// ========================================
+
 function adicionarTarefa(event) {
+
+    // Impede a página de recarregar
     event.preventDefault();
+
+
+    // Pega o texto digitado
     const texto = inputTarefa.value.trim();
-    if (texto === ""){
+
+
+    // Verifica se o campo está vazio
+    if (texto === "") {
+
         alert("Digite uma tarefa!");
+
         return;
     }
+
+
+    // Cria o objeto da nova tarefa
     const novaTarefa = {
+
         id: Date.now(),
+
         texto: texto,
+
         concluida: false
     };
+
+
+    // Adiciona no array
     tarefas.push(novaTarefa);
-    salvarTarefa();
+
+
+    // Salva no navegador
+    salvarTarefas();
+
+
+    // Atualiza a tabela
+    renderizarTarefas();
+
+
+    // Limpa o input
     inputTarefa.value = "";
+
+
+    // Volta o cursor para o input
     inputTarefa.focus();
+
+
     console.log(novaTarefa);
 }
 
-function salvarTarefa() {
-    localStorage.setItem("tarefas", JSON.stringify(tarefas));
+
+// ========================================
+// FUNÇÃO PARA MOSTRAR AS TAREFAS
+// ========================================
+
+function renderizarTarefas() {
+
+    // Limpa a tabela antes de criar novamente
+    listaTarefas.innerHTML = "";
+
+
+    tarefas.forEach(function (tarefa, indice) {
+
+        // Cria a linha
+        const linha = document.createElement("tr");
+
+
+        // --------------------------------
+        // COLUNA DO NÚMERO
+        // --------------------------------
+
+        const colunaNumero =
+            document.createElement("td");
+
+        colunaNumero.textContent =
+            indice + 1;
+
+
+        // --------------------------------
+        // COLUNA DO NOME
+        // --------------------------------
+
+        const colunaNome =
+            document.createElement("td");
+
+        colunaNome.textContent =
+            tarefa.texto;
+
+
+        // Se estiver concluída
+        if (tarefa.concluida) {
+
+            colunaNome.classList.add(
+                "text-decoration-line-through",
+                "text-muted"
+            );
+        }
+
+
+        // --------------------------------
+        // COLUNA DO STATUS
+        // --------------------------------
+
+        const colunaStatus =
+            document.createElement("td");
+
+
+        if (tarefa.concluida) {
+
+            colunaStatus.innerHTML =
+                '<span class="badge text-bg-success">Concluída</span>';
+
+        } else {
+
+            colunaStatus.innerHTML =
+                '<span class="badge text-bg-warning">Pendente</span>';
+        }
+
+
+        // --------------------------------
+        // COLUNA DE AÇÕES
+        // --------------------------------
+
+        const colunaAcoes =
+            document.createElement("td");
+
+        colunaAcoes.classList.add(
+            "text-center"
+        );
+
+
+        // Botão concluir
+        const botaoConcluir =
+            document.createElement("button");
+
+        botaoConcluir.textContent =
+            tarefa.concluida
+                ? "Desmarcar"
+                : "Concluir";
+
+        botaoConcluir.classList.add(
+            "btn",
+            "btn-success",
+            "btn-sm",
+            "me-2"
+        );
+
+
+        botaoConcluir.addEventListener(
+            "click",
+            function () {
+
+                alterarStatus(tarefa.id);
+            }
+        );
+
+
+        // Botão excluir
+        const botaoExcluir =
+            document.createElement("button");
+
+        botaoExcluir.textContent =
+            "Excluir";
+
+        botaoExcluir.classList.add(
+            "btn",
+            "btn-danger",
+            "btn-sm"
+        );
+
+
+        botaoExcluir.addEventListener(
+            "click",
+            function () {
+
+                excluirTarefa(tarefa.id);
+            }
+        );
+
+
+        // Coloca os botões na coluna
+        colunaAcoes.appendChild(
+            botaoConcluir
+        );
+
+        colunaAcoes.appendChild(
+            botaoExcluir
+        );
+
+
+        // --------------------------------
+        // MONTA A LINHA
+        // --------------------------------
+
+        linha.appendChild(
+            colunaNumero
+        );
+
+        linha.appendChild(
+            colunaNome
+        );
+
+        linha.appendChild(
+            colunaStatus
+        );
+
+        linha.appendChild(
+            colunaAcoes
+        );
+
+
+        // Coloca a linha na tabela
+        listaTarefas.appendChild(
+            linha
+        );
+
+    });
+
+
+    // Atualiza o contador
+    contador.textContent =
+        `${tarefas.length} tarefas`;
 }
-function editarTarefa() {
-    const id = this.parentNode.dataset.id;
-    const tarefa = tarefas.find(tarefa => tarefa.id == id);
-    const novoTexto = prompt("Edite a tarefa:", tarefa.texto);
-    if (novoTexto !== null) {
-        tarefa.texto = novoTexto;
-        salvarTarefa();
+
+
+// ========================================
+// FUNÇÃO PARA ALTERAR O STATUS
+// ========================================
+
+function alterarStatus(id) {
+
+    const tarefaEncontrada =
+        tarefas.find(function (tarefa) {
+
+            return tarefa.id === id;
+        });
+
+
+    if (tarefaEncontrada) {
+
+        tarefaEncontrada.concluida =
+            !tarefaEncontrada.concluida;
+
+        salvarTarefas();
+
+        renderizarTarefas();
     }
 }
+
+
+// ========================================
+// FUNÇÃO PARA EXCLUIR TAREFA
+// ========================================
+
+function excluirTarefa(id) {
+
+    const indice =
+        tarefas.findIndex(function (tarefa) {
+
+            return tarefa.id === id;
+        });
+
+
+    if (indice !== -1) {
+
+        tarefas.splice(indice, 1);
+
+        salvarTarefas();
+
+        renderizarTarefas();
+    }
+}
+
+
+// ========================================
+// FUNÇÃO PARA SALVAR NO LOCALSTORAGE
+// ========================================
+
+function salvarTarefas() {
+
+    localStorage.setItem(
+        "tarefas",
+        JSON.stringify(tarefas)
+    );
+}
+
+
+// ========================================
+// MOSTRA AS TAREFAS AO ABRIR A PÁGINA
+// ========================================
+
+renderizarTarefas();
