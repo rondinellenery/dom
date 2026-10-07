@@ -164,18 +164,23 @@ function renderizarTarefas() {
         );
 
 
-        // Botão concluir
+        // ========================================
+        // BOTÃO CONCLUIR / REABRIR
+        // ========================================
+
         const botaoConcluir =
             document.createElement("button");
 
         botaoConcluir.textContent =
             tarefa.concluida
-                ? "Desmarcar"
+                ? "Reabrir"
                 : "Concluir";
 
         botaoConcluir.classList.add(
             "btn",
-            "btn-success",
+            tarefa.concluida
+                ? "btn-warning"
+                : "btn-success",
             "btn-sm",
             "me-2"
         );
@@ -190,7 +195,37 @@ function renderizarTarefas() {
         );
 
 
-        // Botão excluir
+        // ========================================
+        // BOTÃO EDITAR
+        // ========================================
+
+        const botaoEditar =
+            document.createElement("button");
+
+        botaoEditar.textContent =
+            "Editar";
+
+        botaoEditar.classList.add(
+            "btn",
+            "btn-primary",
+            "btn-sm",
+            "me-2"
+        );
+
+
+        botaoEditar.addEventListener(
+            "click",
+            function () {
+
+                editarTarefa(tarefa.id);
+            }
+        );
+
+
+        // ========================================
+        // BOTÃO EXCLUIR
+        // ========================================
+
         const botaoExcluir =
             document.createElement("button");
 
@@ -213,9 +248,16 @@ function renderizarTarefas() {
         );
 
 
-        // Coloca os botões na coluna
+        // ========================================
+        // COLOCA OS BOTÕES NA COLUNA
+        // ========================================
+
         colunaAcoes.appendChild(
             botaoConcluir
+        );
+
+        colunaAcoes.appendChild(
+            botaoEditar
         );
 
         colunaAcoes.appendChild(
@@ -254,7 +296,7 @@ function renderizarTarefas() {
 
     // Atualiza o contador
     contador.textContent =
-        `${tarefas.length} tarefas`;
+    `${tarefas.length} ${tarefas.length === 1 ? "tarefa" : "tarefas"}`;
 }
 
 
@@ -275,6 +317,59 @@ function alterarStatus(id) {
 
         tarefaEncontrada.concluida =
             !tarefaEncontrada.concluida;
+
+        salvarTarefas();
+
+        renderizarTarefas();
+    }
+}
+
+
+// ========================================
+// FUNÇÃO PARA EDITAR TAREFA
+// ========================================
+
+function editarTarefa(id) {
+
+    const tarefaEncontrada =
+        tarefas.find(function (tarefa) {
+
+            return tarefa.id === id;
+        });
+
+
+    if (tarefaEncontrada) {
+
+        const novoTexto =
+            prompt(
+                "Edite a tarefa:",
+                tarefaEncontrada.texto
+            );
+
+
+        // Se clicar em cancelar
+        if (novoTexto === null) {
+
+            return;
+        }
+
+
+        const textoEditado =
+            novoTexto.trim();
+
+
+        // Não permite tarefa vazia
+        if (textoEditado === "") {
+
+            alert("Digite uma tarefa!");
+
+            return;
+        }
+
+
+        tarefaEncontrada.texto =
+            textoEditado;
+
 
         salvarTarefas();
 
